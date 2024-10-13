@@ -1,10 +1,11 @@
 Pour démarrer le projet il faudra:
 
-1. vous rendre dans le dossier Api_Python, avec la commande : cd Api_Python
+1. Assuez vous de vous rendre dans le dossier Api_Python, avec la commande : cd Api_Python (ou cd API_Python-main, du à la nommenclature Github)
 2. lancer l'api Python avec la commande :  python run.py
-3. Se rendre dans le dossier book-manager avec la commande : cd book-manager
-4. installer les nodes modules avec : npm install
-5. lancer le front-end en react avec : npm start
+3. Eventuellement ouvrir un 2e terminal afin de lancer la partie front-end
+4. Se rendre dans le dossier book-manager avec la commande : cd book-manager
+5. installer les nodes modules avec : npm install
+6. lancer le front-end en react avec : npm start
 
 Routes Implémentées
 GET /books : Récupérer tous les livres.
