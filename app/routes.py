@@ -1,54 +1,70 @@
 from flask import Blueprint, jsonify, request
-from .services import read_books_csv, write_books_csv
+from app.services import BookService
+from app.models import Book
 
-main = Blueprint('main', __name__)
+bp = Blueprint('routes', __name__)
 
-@main.route('/')
+# Initialisation du service des livres
+book_service = BookService()
+book_service.load_books_from_excel('app/data/books.xlsx')
+
+@bp.route('/', methods=['GET'])
 def home():
-    return "Bienvenue sur mon API de Gestion de Bibliotheque!"
+    return "Bienvenue sur notre API de Gestion de Bibliotheque!"
 
-@main.route('/books', methods=['GET'])
+# Route: Obtenir tous les livres
+@bp.route('/books', methods=['GET'])
 def get_books():
-    data = read_books_csv()  # Appel de la fonction qui lit les données du CSV
-    return jsonify(data)  # Retourne les données au format JSON
+    return jsonify(book_service.get_all_books())
 
-@main.route('/books/<string:title>', methods=['GET'])
+# Route: Obtenir un livre par titre
+@bp.route('/books/<string:title>', methods=['GET'])
 def get_book_by_title(title):
-    books = read_books_csv()
-    book = next((book for book in books if book['Titre'].lower() == title.lower()), None)
-    return jsonify(book) if book else jsonify({"error": "Book not found"}), 404
+    book = book_service.find_by_title(title)
+    if book:
+        return jsonify(book.to_dict())
+    return jsonify({"error": "Livre non trouvé"}), 404
 
-@main.route('/books', methods=['POST'])
+# Route: Ajouter un nouveau livre
+@bp.route('/books', methods=['POST'])
 def add_book():
-    new_book = request.get_json()
-    books = read_books_csv()
-    
-    # Vérifier si le livre existe déjà
-    if any(book['Titre'].lower() == new_book['Titre'].lower() for book in books):
-        return jsonify({"error": "Book already exists"}), 400
-    
-    books.append(new_book)
-    write_books_csv(books)  # Fonction pour écrire les données mises à jour dans le CSV
-    return jsonify(new_book), 201
+    data = request.json
+    new_book = Book(
+        title=data['title'],
+        author=data['author'],
+        publication_year=data['publication_year'],
+        genre=data['genre']
+    )
+    book_service.add_book(new_book)
+    return jsonify({"message": "Livre ajouté avec succès"}), 201
 
-@main.route('/books/<string:title>', methods=['PUT'])
-def update_book(title):
-    updated_book = request.get_json()
-    books = read_books_csv()
-    for i, book in enumerate(books):
-        if book['Titre'].lower() == title.lower():
-            books[i] = updated_book
-            write_books_csv(books)
-            return jsonify(updated_book)
-    return jsonify({"error": "Book not found"}), 404
-
-@main.route('/books/<string:title>', methods=['DELETE'])
+# Route: Supprimer un livre
+@bp.route('/books/<string:title>', methods=['DELETE'])
 def delete_book(title):
-    books = read_books_csv()
-    new_books = [book for book in books if book['Titre'].lower() != title.lower()]
-    
-    if len(new_books) == len(books):
-        return jsonify({"error": "Book not found"}), 404
-    
-    write_books_csv(new_books)  # Fonction pour écrire les données mises à jour dans le CSV
-    return jsonify({"message": "Book deleted"}), 204
+    if book_service.delete_book(title):
+        return jsonify({"message": "Livre supprimé avec succès"}), 200
+    return jsonify({"error": "Livre non trouvé"}), 404
+
+# Route: Mettre à jour un livre
+@bp.route('/books/<string:title>', methods=['PUT'])
+def update_book(title):
+    data = request.json
+    if book_service.update_book(title, data):
+        return jsonify({"message": "Livre mis à jour avec succès"}), 200
+    return jsonify({"error": "Livre non trouvé"}), 404
+
+# Route: Emprunter un livre
+@bp.route('/books/<string:title>/borrow', methods=['POST'])
+def borrow_book(title):
+    book = book_service.find_by_title(title)
+    if book:
+        return jsonify({"message": book.borrow()})
+    return jsonify({"error": "Livre non trouvé"}), 404
+
+# Route: Retourner un livre
+@bp.route('/books/<string:title>/return', methods=['POST'])
+def return_book(title):
+    book = book_service.find_by_title(title)
+    if book:
+        return jsonify({"message": book.return_book()})
+    return jsonify({"error": "Livre non trouvé"}), 404

@@ -1,0 +1,12 @@
+bibliotheque_api/
+│
+├── app/
+│   ├── __init__.py         # Initialisation de l'application Flask
+│   ├── models.py           # Définition de la classe Book
+│   ├── services.py         # Gestion des livres (Lecture des données, opérations)
+│   ├── routes.py           # Routes de l'API Flask
+│   └── data/
+│       └── books.xlsx      # Fichier Excel avec les données des livres
+├── venv/                   # Environnement virtuel Python
+└── run.py                  # Point d'entrée pour exécuter l'API
+└── README.md               # Instructions pour le projet
