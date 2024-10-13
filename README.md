@@ -1,3 +1,7 @@
+Pour démarrer le projet il faudra, 
+lancer l'api Python avec la commande :  python run.py
+lancer le front-end en react avec : npm start
+
 Routes Implémentées
 GET /books : Récupérer tous les livres.
 GET /books/<title> : Récupérer un livre par titre.
