@@ -1,5 +1,3 @@
-// BookList.js
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
@@ -8,13 +6,14 @@ import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import EditBook from './EditBook'; // Import du composant EditBook
 import DeleteBook from './DeleteBook'; // Import du composant DeleteBook
 
-
 const BookList = () => {
   const [books, setBooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const booksPerPage = 3;
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -55,10 +54,17 @@ const BookList = () => {
     }
   };
 
+  // Pagination logic
+  const indexOfLastBook = currentPage * booksPerPage;
+  const indexOfFirstBook = indexOfLastBook - booksPerPage;
+  const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <BookListContainer>
       <h2>Liste des Livres</h2>
-      {books.map((book) => (
+      {currentBooks.map((book) => (
         <BookItem key={book.title}>
           <div>
             <BookTitle>{book.title}</BookTitle>
@@ -75,6 +81,14 @@ const BookList = () => {
           </IconContainer>
         </BookItem>
       ))}
+
+      <Pagination>
+        {Array.from({ length: Math.ceil(books.length / booksPerPage) }, (_, index) => (
+          <PageNumber key={index + 1} onClick={() => paginate(index + 1)}>
+            {index + 1}
+          </PageNumber>
+        ))}
+      </Pagination>
 
       {showEditModal && (
         <EditBook
@@ -102,12 +116,13 @@ const BookListContainer = styled.div`
 
 const BookItem = styled.div`
   background: #f8f9fa;
-  border-radius: 5px;
+  border-radius: 10px;
   margin: 10px 0;
-  padding: 10px;
+  padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const BookTitle = styled.h3`
@@ -131,4 +146,23 @@ const IconContainer = styled.div`
     }
   }
 `;
+
+const Pagination = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+`;
+
+const PageNumber = styled.span`
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #007bff;
+    color: white;
+  }
+`;
+
 export default BookList;

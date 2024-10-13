@@ -1,6 +1,10 @@
-Pour démarrer le projet il faudra, 
-lancer l'api Python avec la commande :  python run.py
-lancer le front-end en react avec : npm start
+Pour démarrer le projet il faudra:
+
+1. vous rendre dans le dossier Api_Python, avec la commande : cd Api_Python
+2. lancer l'api Python avec la commande :  python run.py
+3. Se rendre dans le dossier book-manager avec la commande : cd Api_Python
+4. installer les nodes modules avec : npm install
+5. lancer le front-end en react avec : npm start
 
 Routes Implémentées
 GET /books : Récupérer tous les livres.
